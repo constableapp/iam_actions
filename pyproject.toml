@@ -1,0 +1,30 @@
+[project]
+name = "iam_actions"
+authors = [{name = "Big Bad Wolf Security, LLC"}]
+dependencies = ["beautifulsoup4~=4.9.3"]
+description = "Generate JSON of AWS policy components for services and actions"
+dynamic = ["version"]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+
+[project.scripts]
+iam_actions_generate = "iam_actions.generate:run"
+
+[project.urls]
+Homepage = "https://constableapp.com/"
+Repository = "https://github.com/constableapp/iam_actions"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=46.1.0", "wheel"]
+
+[tool.setuptools.dynamic]
+version = {attr = "iam_actions.__version__"}
