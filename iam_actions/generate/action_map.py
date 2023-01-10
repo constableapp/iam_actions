@@ -10,11 +10,12 @@ main entry point for this module.
 from bs4 import Tag
 from dataclasses import dataclass, field
 from enum import Enum
+from loguru import logger
 
-__all__ = ["create_action_map"]
 
 class AccessLevel(str, Enum):
     """Enumerate the possible action "AccessLevel" item values."""
+
     READ = "Read"
     WRITE = "Write"
     PUT = "Put"
@@ -35,6 +36,7 @@ class AccessLevel(str, Enum):
 @dataclass
 class ActionMap:
     """Define the structure of an AWS action definition."""
+
     access_level: AccessLevel = AccessLevel.NONE
     action: str = ""
     condition_keys: list[str] = field(default_factory=list, repr=False)
@@ -73,7 +75,7 @@ def generate_action_map(docs: list[Tag], acts: list[str]) -> tuple[dict, list[st
         service = doc.service
         table = doc.flat_action_map_table()
         if not table:
-            errors.append(f"Page missing actions table: {doc.url}")
+            logger.info(f"Page missing actions table: {doc.readable_url()}")
             continue
         for map in process_actions_table(table):
             # Keep the first one as defined in the URL map.

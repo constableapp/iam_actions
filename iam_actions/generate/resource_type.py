@@ -4,6 +4,8 @@
 from dataclasses import dataclass
 from typing import Optional
 from bs4 import Tag
+from loguru import logger
+
 
 @dataclass
 class ResouceTypeDetail:
@@ -26,7 +28,8 @@ def resource_type_arn_to_globs(arn):
             out.append(c)
     return "".join(out)
 
-def process_resource_type_table(table: list[list[str]]) -> dict[str,dict[str,str]]:
+
+def process_resource_type_table(table: list[list[str]]) -> dict[str, dict[str, str]]:
     if not table:
         return None
     rts = {}
@@ -45,7 +48,7 @@ def process_resource_type_table(table: list[list[str]]) -> dict[str,dict[str,str
 
         if cells[2].a is not None:
             rt.condition_keys = str(cells[2].a.string)
-        
+
         rts[rt.resource_type_name] = {"arn_pattern": rt.arn_pattern, "condition_keys": rt.condition_keys}
 
     return rts
@@ -57,7 +60,7 @@ def generate_resource_type(docs: list[Tag]):
     for doc in docs:
         resource_types = process_resource_type_table(doc.resource_type_table())
         if not resource_types:
-            errors.append(f"Page missing resource type table: {doc.url}")
+            logger.info(f"Page missing resource type table: {doc.readable_url()}")
             continue
         for k in resource_types:
             if not rts.get(k):

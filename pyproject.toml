@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "iam-actions"
-version = "1.0.0"
+version = "1.1.0"
 description = "JSON of AWS policy components"
 authors = ["Constable <info@constableapp.com>"]
 license = "MIT"
@@ -19,11 +19,30 @@ Homepage = "https://constableapp.com/"
 Repository = "https://github.com/constableapp/iam_actions"
 
 [tool.poetry.dependencies]
-python = ">=3.9"
-beautifulsoup4 = "^4.11.1"
+python = ">=3.9,<4.0"
 
 [tool.poetry.group.dev.dependencies]
 slack-sdk = "^3.19.5"
+beautifulsoup4 = "^4.11.1"
+boto3 = "^1.26.46"
+loguru = "^0.6.0"
+black = "^22.12.0"
+flakeheaven = "^3.2.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.black]
+line-length = 180
+
+[tool.flakeheaven]
+format = "grouped"
+max_line_length = 180
+exclude = ["*.md", "dist"]
+
+[tool.flakeheaven.plugins]
+pyflakes = ["+*"]
+pycodestyle = ["-*"]
 
 [build-system]
 requires = ["poetry-core"]

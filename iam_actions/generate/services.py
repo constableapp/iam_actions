@@ -14,6 +14,7 @@ POLICIES_URL = "https://awspolicygen.s3.amazonaws.com/js/policies.js"
 @dataclass
 class Service:
     """Define the structure of an AWS service definition."""
+
     Actions: list[str] = field(default_factory=list)
     ServiceNames: list[str] = field(default_factory=list)
     ARNFormats: list[str] = field(default_factory=list)

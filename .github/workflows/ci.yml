@@ -1,0 +1,27 @@
+name: Constable CI
+
+on:
+  push:
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Poetry and Dependencies
+        run: |
+          pip install --upgrade poetry==1.3.1
+          poetry install --with dev
+
+      - name: Check Lint
+        run: |
+          poetry run black --check iam_actions
+          poetry run flakeheaven lint

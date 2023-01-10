@@ -7,6 +7,7 @@ import json
 import urllib.request
 from .action_map import generate_action_map
 from .resource_type import generate_resource_type
+from loguru import logger
 
 # Formerly: https://docs.aws.amazon.com/IAM/latest/UserGuide
 BASE_URL = "https://docs.aws.amazon.com/service-authorization/latest/reference"
@@ -14,17 +15,19 @@ TABLE_URL_TEMPLATE = BASE_URL + "/list_{}.html"
 TOC_URL = BASE_URL + "/toc-contents.json"
 
 URL_MAP = {
+    "a2c": ["awsapp2container"],
     "a2i-runtime.sagemaker": ["amazonsagemaker"],
     "a4b": ["alexaforbusiness"],
     "access-analyzer": ["awsiamaccessanalyzer"],
     "account": ["awsaccountmanagement", "awsaccounts"],
-    "acm-pca": ["awscertificatemanagerprivatecertificateauthority"],
     "acm": ["awscertificatemanager"],
+    "acm-pca": ["awscertificatemanagerprivatecertificateauthority", "awsprivatecertificateauthority"],
     "activate": ["awsactivate"],
     "airflow": ["amazonmanagedworkflowsforapacheairflow"],
     "amplify": ["awsamplify"],
     "amplifybackend": ["awsamplifyadmin"],
     "amplifyuibuilder": ["awsamplifyuibuilder"],
+    "aoss": ["amazonopensearchserverless"],
     "apigateway": [
         "manageamazonapigateway",
         "amazonapigatewaymanagementv2",
@@ -48,6 +51,7 @@ URL_MAP = {
     "appstream": ["amazonappstream2.0"],
     "appsync": ["awsappsync"],
     "aps": ["amazonmanagedserviceforprometheus"],
+    "arc-zonal-shift": ["amazonroute53applicationrecoverycontroller-zonalshift"],
     "arsenal": ["applicationdiscoveryarsenal"],
     "artifact": ["awsartifact"],
     "athena": ["amazonathena"],
@@ -64,13 +68,15 @@ URL_MAP = {
         "awsmarketplaceprivatemarketplace",
         "awsmarketplaceprocurementsystemsintegration",
         "awsprivatemarketplace",
+        "awsmarketplacesellerreporting",
     ],
-    "aws-portal": ["awsbilling"],
+    "aws-portal": ["awsbillingconsole"],
     "awsconnector": ["awsconnectorservice"],
     "backup-gateway": ["awsbackupgateway"],
     "backup-storage": ["awsbackupstorage"],
     "backup": ["awsbackup"],
     "batch": ["awsbatch"],
+    "billing": ["awsbilling_"],
     "billingconductor": ["awsbillingconductor"],
     "braket": ["amazonbraket"],
     "budgets": ["awsbudgetservice"],
@@ -91,6 +97,7 @@ URL_MAP = {
     "cloudwatch": ["amazoncloudwatch"],
     "codeartifact": ["awscodeartifact"],
     "codebuild": ["awscodebuild"],
+    "codecatalyst": ["amazoncodecatalyst"],
     "codecommit": ["awscodecommit"],
     "codedeploy": ["awscodedeploy"],
     "codedeploy-commands-secure": ["awscodedeploysecurehostcommandsservice"],
@@ -101,6 +108,7 @@ URL_MAP = {
     "codestar-connections": ["awscodestarconnections"],
     "codestar-notifications": ["awscodestarnotifications"],
     "codestar": ["awscodestar"],
+    "codewhisperer": ["amazoncodewhisperer"],
     "cognito-identity": ["amazoncognitoidentity"],
     "cognito-idp": ["amazoncognitouserpools"],
     "cognito-sync": ["amazoncognitosync"],
@@ -128,6 +136,7 @@ URL_MAP = {
     "discovery": ["awsapplicationdiscoveryservice", "applicationdiscovery"],
     "dlm": ["amazondatalifecyclemanager"],
     "dms": ["awsdatabasemigrationservice"],
+    "docdb-elastic": ["amazondocumentdbelasticclusters"],
     "drs": ["awselasticdisasterrecovery"],
     "ds": ["awsdirectoryservice"],
     "dynamodb": ["amazondynamodb"],
@@ -143,7 +152,7 @@ URL_MAP = {
     "elasticache": ["amazonelasticache"],
     "elasticbeanstalk": ["awselasticbeanstalk"],
     "elasticfilesystem": ["amazonelasticfilesystem"],
-    "elasticloadbalancing": ["elasticloadbalancingv2", "elasticloadbalancing"],
+    "elasticloadbalancing": ["elasticloadbalancingv2", "awselasticloadbalancing"],
     "elasticmapreduce": ["amazonelasticmapreduce"],
     "elastictranscoder": ["amazonelastictranscoder"],
     "elemental-activations": [
@@ -151,8 +160,8 @@ URL_MAP = {
         "awselementalappliancesandsoftwareactivationservice",
     ],
     "elemental-appliances-software": ["awselementalappliancesandsoftware"],
-    "elemental-support-cases": ["elementalsupportcases"],
-    "elemental-support-content": ["elementalsupportcontent"],
+    "elemental-support-cases": ["awselementalsupportcases"],
+    "elemental-support-content": ["awselementalsupportcontent"],
     "emr-containers": ["amazonemroneksemrcontainers"],
     "emr-serverless": ["amazonemrserverless"],
     "es": [
@@ -187,11 +196,13 @@ URL_MAP = {
     "honeycode": ["amazonhoneycode"],
     "iam": ["identityandaccessmanagement"],
     "identitystore": ["awsidentitystore"],
+    "identitystore-auth": ["awsidentitystoreauth"],
     "identity-sync": ["awsidentitysync", "awsidentitysynchronizationservice"],
     "imagebuilder": ["amazonec2imagebuilder"],
     "importexport": ["awsimportexportdiskservice"],
     "inspector": ["amazoninspector"],
     "inspector2": ["amazoninspector2"],
+    "internetmonitor": ["amazoncloudwatchinternetmonitor"],
     "iot-device-tester": ["awsiotdevicetester"],
     "iot": ["awsiot"],
     "iot1click": ["awsiot1-click"],
@@ -226,6 +237,7 @@ URL_MAP = {
     "license-manager-user-subscriptions": [
         "awslicensemanagerusersubscriptions",
     ],
+    "license-manager-linux-subscriptions": ["awslicensemanagerlinuxsubscriptionsmanager"],
     "lightsail": ["amazonlightsail"],
     "logs": ["amazoncloudwatchlogs"],
     "lookoutequipment": ["amazonlookoutforequipment"],
@@ -260,6 +272,8 @@ URL_MAP = {
     "network-firewall": ["awsnetworkfirewall"],
     "networkmanager": ["awsnetworkmanager", "networkmanager"],
     "nimble": ["amazonnimblestudio"],
+    "oam": ["amazoncloudwatchobservabilityaccessmanager"],
+    "omics": ["amazonomics"],
     "opsworks-cm": ["awsopsworksconfigurationmanagement"],
     "opsworks": ["awsopsworks"],
     "organizations": ["awsorganizations"],
@@ -267,6 +281,7 @@ URL_MAP = {
     "panorama": ["awspanorama"],
     "personalize": ["amazonpersonalize"],
     "pi": ["awsperformanceinsights"],
+    "pipes": ["amazoneventbridgepipes"],
     "polly": ["amazonpolly"],
     "pricing": ["awspricelist"],
     "private-networks": ["awsserviceprovidingmanagedprivatenetworks"],
@@ -287,6 +302,7 @@ URL_MAP = {
     "rekognition": ["amazonrekognition"],
     "resiliencehub": ["awsresiliencehubservice"],
     "resource-explorer": ["awstageditor"],
+    "resource-explorer-2": ["awsresourceexplorer"],
     "resource-groups": ["awsresourcegroups"],
     "rhelkb": ["amazonrhelknowledgebaseportal"],
     "robomaker": ["awsrobomaker"],
@@ -298,16 +314,19 @@ URL_MAP = {
     "route53-recovery-control-config": ["amazonroute53recoverycontrols"],
     "route53-recovery-readiness": ["amazonroute53recoveryreadiness"],
     "rum": ["awscloudwatchrum"],
+    "sagemaker-geospatial": ["amazonsagemakergeospatialcapabilities"],
     "s3-outposts": ["amazons3onoutposts"],
     "s3": ["amazons3"],
     "s3-object-lambda": ["amazons3objectlambda"],
     "sagemaker": ["amazonsagemaker"],
     "sagemaker-groundtruth-synthetic": ["amazonsagemakergroundtruthsynthetic"],
     "savingsplans": ["awssavingsplans"],
+    "scheduler": ["amazoneventbridgescheduler"],
     "schemas": ["amazoneventbridgeschemas"],
     "sdb": ["amazonsimpledb"],
     "secretsmanager": ["awssecretsmanager"],
     "securityhub": ["awssecurityhub"],
+    "securitylake": ["amazonsecuritylake"],
     "serverlessrepo": ["awsserverlessapplicationrepository"],
     "servicecatalog": ["awsservicecatalog"],
     "servicediscovery": ["awscloudmap"],
@@ -320,6 +339,7 @@ URL_MAP = {
     ],
     "shield": ["awsshield"],
     "signer": ["awssigner"],
+    "simspaceweaver": ["awssimspaceweaver"],
     "sms-voice": [
         "amazonpinpointsmsandvoiceservice",
         "amazonpinpointsmsvoicev2",
@@ -335,6 +355,7 @@ URL_MAP = {
     "ssm-incidents": ["awssystemsmanagerincidentmanager"],
     "ssm-contacts": ["awssystemsmanagerincidentmanagercontacts"],
     "ssm-guiconnect": ["awssystemsmanagerguiconnect"],
+    "ssm-sap": ["awssystemsmanagerforsap"],
     "sso": ["awsiamidentitycentersuccessortoawssinglesign-on", "awssso"],
     "sso-directory": [
         "awsiamidentitycentersuccessortoawssinglesign-ondirectory",
@@ -345,6 +366,8 @@ URL_MAP = {
     "sts": ["awssecuritytokenservice"],
     "sumerian": ["amazonsumerian"],
     "support": ["awssupport"],
+    "supportapp": ["awssupportappinslack"],
+    "supportplans": ["awssupportplans"],
     "sustainability": ["awssustainability"],
     "swf": ["amazonsimpleworkflowservice"],
     "synthetics": ["amazoncloudwatchsynthetics"],
@@ -359,11 +382,14 @@ URL_MAP = {
     "trustedadvisor": ["awstrustedadvisor"],
     "vendor-insights": ["awsmarketplacevendorinsights"],
     "voiceid": ["amazonconnectvoiceid"],
+    "vpc-lattice": ["amazonvpclattice"],
+    "vpc-lattice-svcs": ["amazonvpclatticeservices"],
     "waf-regional": ["awswafregional"],
     "waf": ["awswaf"],
     "wafv2": ["awswafv2"],
     "wam": ["amazonworkspacesapplicationmanager"],
     "wellarchitected": ["awswell-architectedtool"],
+    "wickr": ["awswickr"],
     "wisdom": ["amazonconnectwisdom"],
     "workdocs": ["amazonworkdocs"],
     "worklink": ["amazonworklink"],
@@ -382,30 +408,34 @@ class AwsDocumentationPage:
     soup: Tag = field(init=False)
 
     ACTION_MAP_HEADERS = {
-            "actions",
-            "description",
-            "access level",
-            "resource types (*required)",
-            "condition keys",
-            "dependent actions",
-        }
-    RESOURCE_TYPE_HEADERS = {
-           "Resource types", 
-           "ARN", 
-           "Condition keys"
-        }
+        "actions",
+        "description",
+        "access level",
+        "resource types (*required)",
+        "condition keys",
+        "dependent actions",
+    }
+    RESOURCE_TYPE_HEADERS = {"Resource types", "ARN", "Condition keys"}
 
     def __post_init__(self):
-       self.fetch()
+        self.fetch()
+
+    def readable_url(self):
+        return self.url.split("/list_", 1)[1]
 
     def fetch(self):
         with urllib.request.urlopen(self.url) as response:
             page = response.read()
+            log_msg = f"Fetching {self.readable_url()} - {response.code}"
+            if response.code == 200:
+                logger.debug(log_msg)
+            else:
+                logger.error(log_msg)
         self.soup = BeautifulSoup(page, "html.parser")
 
     def resource_type_table(self):
         return self.find_table_for_headers(self.RESOURCE_TYPE_HEADERS)
-    
+
     def action_map_table(self):
         return self.find_table_for_headers(self.ACTION_MAP_HEADERS)
 
@@ -448,7 +478,7 @@ class AwsDocumentationPage:
         """
         if not self.action_map_table():
             return None
-        
+
         flat_table = []
 
         rows = (x for x in self.action_map_table() if x.name == "tr")
@@ -484,7 +514,6 @@ class AwsDocumentationPage:
         return flat_table
 
 
-
 def missing_services(url: str = TOC_URL) -> set[str]:
     """Return a set of undefined service names.
 
@@ -493,10 +522,7 @@ def missing_services(url: str = TOC_URL) -> set[str]:
     """
     with urllib.request.urlopen(url) as response:
         toc = json.loads(response.read())
-    toc_services = {
-        service.get("href", "").removeprefix("list_").removesuffix(".html")
-        for service in toc["contents"][0]["contents"][0]["contents"]
-    }
+    toc_services = {service.get("href", "").removeprefix("list_").removesuffix(".html") for service in toc["contents"][0]["contents"][0]["contents"]}
     return toc_services - set(sum(URL_MAP.values(), []))
 
 
@@ -509,7 +535,7 @@ def fetch_docs_for_service(service: str) -> list[Tag]:
     # this will be a list of soup, since services could have multiple docpages
     content = [AwsDocumentationPage(TABLE_URL_TEMPLATE.format(url), service) for url in url_names]
     return (content, errors)
-        
+
 
 def fetch_docs_for_services(services: dict):
     """Main entrypoint"""
