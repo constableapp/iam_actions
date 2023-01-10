@@ -28,7 +28,9 @@ jobs:
           PYPI_IAM_ACTIONS_TOKEN: ${{ secrets.PYPI_IAM_ACTIONS_TOKEN }}
 
       - name: Run Scrape
-        run: poetry run python -m iam_actions.generate
+        run: |
+          poetry run python -m iam_actions.generate.generate
+          poetry run python -m iam_actions.generate.notifier  
 
       - name: Correct version
         run: |
