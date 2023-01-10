@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2020-2022 Big Bad Wolf Security, LLC
+# Copyright 2020-2023 Big Bad Wolf Security, LLC
 
 """Generate and write the JSON files.
 
@@ -13,8 +13,8 @@ with "python -m iam_actions.generate".  The CLI is described using the
 import argparse
 import dataclasses
 import json
-from .action_map import create_action_map
 from .services import create_services, download_policy_definitions
+from .aws_docs import fetch_docs_for_services
 
 __all__ = ["run"]
 
@@ -35,17 +35,25 @@ def create_argument_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("-a", "--actions", metavar="PATH",
                         help="Path to write the generated action map JSON",
-                        type=argparse.FileType("w", encoding="UTF-8"))
+                        type=argparse.FileType("w", encoding="UTF-8"),
+                        default='./iam_actions/actions.json')
     parser.add_argument("-s", "--services", metavar="PATH",
                         help="Path to write the generated services JSON",
-                        type=argparse.FileType("w", encoding="UTF-8"))
+                        type=argparse.FileType("w", encoding="UTF-8"),
+                        default='./iam_actions/services.json')
+    parser.add_argument("-r", "--resourcetypes", metavar="PATH",
+                        help="Path to write resource types JSON",
+                        type=argparse.FileType("w", encoding="UTF-8"),
+                        default='./iam_actions/resourcetypes.json')
     parser.add_argument("-p", "--policies", metavar="PATH",
                         help="Path to write Amazon's policies JSON (to debug)",
-                        type=argparse.FileType("w", encoding="UTF-8"))
+                        type=argparse.FileType("w", encoding="UTF-8"),
+                        default='./iam_actions/policies.json')
     parser.add_argument("-e", "--errors", metavar="PATH",
                         help="Path to write errors and warnings JSON",
-                        type=argparse.FileType("w", encoding="UTF-8"))
-    parser.add_argument("-i", "--indent", default=False,
+                        type=argparse.FileType("w", encoding="UTF-8"),
+                        default="./errors.json")
+    parser.add_argument("-i", "--indent", default=True,
                         action=argparse.BooleanOptionalAction,
                         help="Pretty-print the JSON files",
                         type=argparse.FileType("w", encoding="UTF-8"))
@@ -68,9 +76,13 @@ def run(*pargs, **kwargs) -> None:
                   cls=JSONEncoderDataclass,
                   indent=1 if args.indent else None)
 
-    actions, errors = create_action_map(services)
+    actions, resource_types, errors = fetch_docs_for_services(services)
     if args.actions:
         json.dump(actions, args.actions,
+                  cls=JSONEncoderDataclass,
+                  indent=1 if args.indent else None)
+    if args.resourcetypes:
+        json.dump(resource_types, args.resourcetypes,
                   cls=JSONEncoderDataclass,
                   indent=1 if args.indent else None)
     if args.errors:
