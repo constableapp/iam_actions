@@ -1,12 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2020-2022 Big Bad Wolf Security, LLC
-
-"""Define and create service structures.
-
-Calling `create_services` with a policy JSON object is the main entry
-point for this module.  The function `download_policy_definitions`
-returns the current policy JSON object from Amazon for the argument.
-"""
+# Copyright 2020-2023 Big Bad Wolf Security, LLC
 
 import json
 import urllib.request

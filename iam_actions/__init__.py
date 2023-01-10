@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2020-2022 Big Bad Wolf Security, LLC
+# Copyright 2020-2023 Big Bad Wolf Security, LLC
 
-"""Provide the submodules with the actual code as a top-level import."""
+from . import action_map, services, data
 
-from . import action_map, services
-
-__all__ = ["action_map", "services"]
+__all__ = ["action_map", "services", "data"]
 __version__ = '0.1.0'
+
+actions = data.actions
+policies = data.policies
+resource_types = data.resource_types
+services = data.services
