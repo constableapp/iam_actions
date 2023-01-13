@@ -5,6 +5,7 @@ description = "JSON of AWS policy components"
 authors = ["Constable <info@constableapp.com>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/constableapp/iam_actions"
 packages = [{include = "iam_actions"}]
 
 include = [
