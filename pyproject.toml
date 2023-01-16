@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "iam-actions"
-version = "1.1.0"
+version = "1.2.0"
 description = "JSON of AWS policy components"
 authors = ["Constable <info@constableapp.com>"]
 license = "MIT"
