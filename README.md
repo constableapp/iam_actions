@@ -2,6 +2,8 @@
 
 `iam_actions` is a python module which contains a dictionary of AWS IAM information. Ideally, it is a complete catalog of all AWS services, actions, and resource types. The information is scraped from the AWS documentation pages.
 
+Nightly, the scraping service runs, and publishes a new version with the date appended. 
+
 The package is meant to be used as a consumable package, but it also contains the code to generate the definitions for packaging.
 
 There are three "roots" that you can consume: actions, resource_types, and services. They all currently return as dict's. *However, in a future release, it will be returned as python data structures*
