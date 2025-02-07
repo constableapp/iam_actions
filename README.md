@@ -1,3 +1,5 @@
+# THIS PROJECT HAS BEEN RETIRED AND ARCHIVED. IT IS NO LONGER MAINTAINED.
+
 # iam_actions
 
 `iam_actions` is a python module which contains a dictionary of AWS IAM information. Ideally, it is a complete catalog of all AWS services, actions, and resource types. The information is scraped from the AWS documentation pages.
