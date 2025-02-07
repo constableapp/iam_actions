@@ -37,7 +37,7 @@ jobs:
         run: |
           export VERSION=$(grep version pyproject.toml | grep -Po "(\d+\.)" | tr -d '\n')
           export NEW_VERSION=$VERSION$(date +%Y%m%d)
-          echo "NEW_VERSION=$NEW_VERSION-finalrelease" >> $GITHUB_ENV
+          echo "NEW_VERSION=$NEW_VERSION+finalrelease" >> $GITHUB_ENV
 
       - name: Correct version
         run: |
